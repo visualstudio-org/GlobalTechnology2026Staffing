@@ -133,6 +133,69 @@ def create_bar_chart(df, x, y, title, color=FA_GREEN):
     
     return fig.to_html(include_plotlyjs=False, div_id=title.replace(' ', '_'))
 
+def create_horizontal_bar_chart(df, x, y, title, color=FA_GREEN):
+    """Create a horizontal bar chart"""
+    fig = px.bar(
+        df,
+        x=x,
+        y=y,
+        orientation='h',
+        title=title,
+        color_discrete_sequence=[color]
+    )
+    
+    fig.update_traces(
+        marker_line_color='white',
+        marker_line_width=1.5
+    )
+    
+    fig.update_layout(
+        height=400,
+        margin=dict(l=150, r=20, t=50, b=40),
+        paper_bgcolor='white',
+        plot_bgcolor='white',
+        font={'family': 'Inter, sans-serif', 'size': 12},
+        title_font={'size': 18, 'color': FA_NAVY},
+        xaxis={'gridcolor': FA_LIGHT_GRAY, 'title': '# of New Roles'},
+        yaxis={'gridcolor': FA_LIGHT_GRAY, 'title': ''}
+    )
+    
+    return fig.to_html(include_plotlyjs=False, div_id=title.replace(' ', '_'), config={'displayModeBar': False})
+
+def create_investment_pie_chart(df, title):
+    """Create investment distribution pie chart"""
+    fig = px.pie(
+        df,
+        values='Est. Investment',
+        names='Technology Area',
+        title=title,
+        color_discrete_sequence=[FA_GREEN, '#f5a623', '#00cc96', '#636efa', '#ab63fa', '#FFA15A']
+    )
+    
+    fig.update_traces(
+        textposition='inside',
+        textinfo='percent',
+        marker=dict(line=dict(color='white', width=2))
+    )
+    
+    fig.update_layout(
+        height=400,
+        margin=dict(l=20, r=20, t=50, b=20),
+        paper_bgcolor='white',
+        font={'family': 'Inter, sans-serif', 'size': 12},
+        title_font={'size': 18, 'color': FA_NAVY},
+        showlegend=True,
+        legend=dict(
+            orientation='v',
+            yanchor='middle',
+            y=0.5,
+            xanchor='left',
+            x=1.05
+        )
+    )
+    
+    return fig.to_html(include_plotlyjs=False, div_id=title.replace(' ', '_'), config={'displayModeBar': False})
+
 def create_scatter_chart(df, x, y, size, title):
     """Create a scatter plot"""
     fig = px.scatter(
@@ -199,22 +262,20 @@ def generate_html(summary_df, detailed_df):
     # Create roles filled gauge
     gauge_html = create_gauge_chart(closed_roles, total_roles, f'Roles Filled ({fill_rate:.1f}%)')
     
-    # Technology areas bar chart
-    tech_bar = create_bar_chart(
-        summary_df.head(10),
-        'Technology Area',
+    # Technology areas - horizontal bar chart (sorted descending)
+    tech_df_sorted = summary_df.nlargest(6, '# of New Roles')[['Technology Area', '# of New Roles']].sort_values('# of New Roles', ascending=True)
+    tech_horizontal_bar = create_horizontal_bar_chart(
+        tech_df_sorted,
         '# of New Roles',
-        'Roles by Technology Area (Top 10)',
+        'Technology Area',
+        'New Roles by Technology Area',
         FA_GREEN
     )
     
-    # Investment bar chart
-    investment_bar = create_bar_chart(
-        summary_df.head(10),
-        'Technology Area',
-        'Est. Investment',
-        'Investment by Technology Area (Top 10)',
-        FA_GREEN_DARK
+    # Investment distribution pie chart
+    investment_pie = create_investment_pie_chart(
+        summary_df.head(6),
+        'Investment Distribution by Technology Area'
     )
     
     # Investment scatter plot
@@ -442,11 +503,11 @@ def generate_html(summary_df, detailed_df):
         
         <div class="chart-grid">
             <div class="chart-container">
-                {tech_bar}
+                {tech_horizontal_bar}
             </div>
             
             <div class="chart-container">
-                {investment_bar}
+                {investment_pie}
             </div>
         </div>
         
