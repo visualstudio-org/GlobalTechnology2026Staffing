@@ -387,7 +387,7 @@ def generate_html(summary_df, detailed_df):
 <body>
     <header>
         <div class="header-content">
-            <div class="logo">FirstAdvantage</div>
+            <img src="fa-logo.png" alt="First Advantage" style="height: 50px; margin-right: 20px;">
             <div>
                 <h1>Global Technology 2026 Staffing Dashboard</h1>
             </div>
