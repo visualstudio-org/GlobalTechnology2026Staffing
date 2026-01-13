@@ -171,9 +171,10 @@ def generate_html(summary_df, detailed_df):
     print("Calculating metrics...")
     
     # Calculate overall metrics from detailed data for accurate counts
-    if 'Status' in detailed_df.columns:
-        open_roles = len(detailed_df[detailed_df['Status'] != 'Closed'])
-        closed_roles = len(detailed_df[detailed_df['Status'] == 'Closed'])
+    if 'Recruitment Status' in detailed_df.columns:
+        # Count all non-"Filled" statuses as open
+        open_roles = len(detailed_df[detailed_df['Recruitment Status'].notna()])
+        closed_roles = len(detailed_df) - open_roles
         total_roles = len(detailed_df)
     else:
         # Fallback to summary data
