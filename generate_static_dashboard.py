@@ -150,22 +150,26 @@ def create_horizontal_bar_chart(df, x, y, title, color=FA_GREEN):
     )
     
     fig.update_layout(
-        height=400,
-        margin=dict(l=150, r=20, t=50, b=40),
+        height=450,
+        margin=dict(l=180, r=40, t=60, b=50),
         paper_bgcolor='white',
         plot_bgcolor='white',
         font={'family': 'Inter, sans-serif', 'size': 12},
         title_font={'size': 18, 'color': FA_NAVY},
-        xaxis={'gridcolor': FA_LIGHT_GRAY, 'title': '# of New Roles'},
-        yaxis={'gridcolor': FA_LIGHT_GRAY, 'title': ''}
+        xaxis={'gridcolor': FA_LIGHT_GRAY, 'title': '# of New Roles', 'range': [0, None]},
+        yaxis={'gridcolor': FA_LIGHT_GRAY, 'title': ''},
+        bargap=0.15
     )
     
     return fig.to_html(include_plotlyjs=False, div_id=title.replace(' ', '_'), config={'displayModeBar': False})
 
 def create_investment_pie_chart(df, title):
     """Create investment distribution pie chart"""
+    # Filter out rows with zero or null investment
+    df_filtered = df[df['Est. Investment'].notna() & (df['Est. Investment'] > 0)].copy()
+    
     fig = px.pie(
-        df,
+        df_filtered,
         values='Est. Investment',
         names='Technology Area',
         title=title,
@@ -174,8 +178,9 @@ def create_investment_pie_chart(df, title):
     
     fig.update_traces(
         textposition='inside',
-        textinfo='percent',
-        marker=dict(line=dict(color='white', width=2))
+        textinfo='percent+label',
+        marker=dict(line=dict(color='white', width=2)),
+        hovertemplate='<b>%{label}</b><br>Investment: $%{value:,.0f}<br>Percentage: %{percent}<extra></extra>'
     )
     
     fig.update_layout(
